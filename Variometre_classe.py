@@ -38,8 +38,10 @@ class Variometre :
         self.root.bind('<Escape>',lambda e: self.root.destroy())
         self.screen_width = self.root.winfo_screenwidth()
         self.screen_height = self.root.winfo_screenheight()
-        self.canvas = tk.Canvas(self.root, width=self.screen_width, height=self.screen_height, borderwidth=0, highlightthickness=0, bg="floral white")
+        self.canvas = tk.Canvas(self.root, width=self.screen_width, height=self.screen_height, borderwidth=0, highlightthickness=0, bg="ivory2")
         self.canvas.grid()
+        self.logo=PhotoImage(file="D:\FAC\L3\Projet\dev_1\logo_mini.gif",master=self.root)
+        self.canvas.create_image(self.screen_width-self.screen_width/20,self.screen_height-self.screen_height/12,image=self.logo)
 
 
 
@@ -190,7 +192,7 @@ class Variometre :
             self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + "ft/min ", fill ="red", font="Courier 20")
 
         else:
-            self.canvas.create_text(position_texte_limite,text ="Speed ​​limit reached ", fill ="orange red", font="Courier 20 bold ")
+            self.canvas.create_text(position_texte_limite,text ="Speed ​​limit reached", fill ="orange red", font="Courier 20 bold ")
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, 0)
             self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + "ft/min ", fill ="red", font="Courier 20")
 
