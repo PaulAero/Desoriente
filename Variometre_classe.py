@@ -201,6 +201,9 @@ class Variometre :
 ##                                        Création du bouton vers l'horizon artificiel
 
     def dessiner_horizon(self):
+
+        self.root.destroy()
+
         import sys
         sys.path.append("D:\FAC\L3\Projet\dev_1")
         import horizon_artificiel
