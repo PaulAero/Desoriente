@@ -40,7 +40,7 @@ class Variometre :
         self.screen_height = self.root.winfo_screenheight()
         self.canvas = tk.Canvas(self.root, width=self.screen_width, height=self.screen_height, borderwidth=0, highlightthickness=0, bg="ivory2")
         self.canvas.grid()
-        self.logo=PhotoImage(file="D:\FAC\L3\Projet\dev_1\logo_mini.gif",master=self.root)
+        self.logo=tk.PhotoImage(file="D:\FAC\L3\Projet\dev_1\logo_mini.gif",master=self.root)
         self.canvas.create_image(self.screen_width-self.screen_width/20,self.screen_height-self.screen_height/12,image=self.logo)
 
 
@@ -205,7 +205,7 @@ class Variometre :
         font_sup_haut = font.Font(family='Arial',       size=taille_sup_haut, weight="bold")
         font_sup_bas = font.Font(family='Arial',       size=taille_sup_bas, weight="normal")
 
-        vitesse=4000
+        vitesse=0
         position_texte_limite=(self.screen_width/2,self.screen_height/12)
         position_texte_vitesse=(self.screen_width/2,self.screen_height/9)
 
@@ -213,18 +213,18 @@ class Variometre :
             angle_vario=(vitesse*60)/(1000)
             angle_python=180+angle_vario
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, angle_python)
-            self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + "ft/min ", fill ="red", font=font_sup_bas)
+            self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " ft/min ", fill ="red", font=font_sup_bas)
 
         elif vitesse < 0 :
             angle_vario=(abs(vitesse)*60)/(1000)
             angle_python=180-angle_vario
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, angle_python)
-            self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + "ft/min ", fill ="red", font=font_sup_bas)
+            self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " ft/min ", fill ="red", font=font_sup_bas)
 
         else:
             self.canvas.create_text(position_texte_limite,text ="Speed ​​limit reached \n", fill ="orange red", font=font_sup_haut)
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, 0)
-            self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + "ft/min ", fill ="red", font=font_sup_bas)
+            self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " ft/min ", fill ="red", font=font_sup_bas)
 
 
 
