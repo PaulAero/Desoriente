@@ -209,7 +209,7 @@ class Variometre :
         position_texte_limite=(self.screen_width/2,self.screen_height/12)
         position_texte_vitesse=(self.screen_width/2,self.screen_height/9)
 
-        if 0<vitesse and vitesse<3000 :
+        if 0<= vitesse and vitesse<3000 :
             angle_vario=(vitesse*60)/(1000)
             angle_python=180+angle_vario
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, angle_python)
