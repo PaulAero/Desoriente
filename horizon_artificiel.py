@@ -13,7 +13,7 @@ class HorizonArtificiel:
         self.root2.bind('<Escape>',lambda e: self.root2.destroy())
         self.canvas2 = tk.Canvas(self.root2, width=self.root2.winfo_screenwidth(), height=self.root2.winfo_screenheight(), borderwidth=0, highlightthickness=0, bg="black")
         self.canvas2.grid()
-        self.logo=PhotoImage(file="D:\FAC\L3\Projet\dev_1\logo_mini.gif",master=self.root2)
+        self.logo=tk.PhotoImage(file="D:\FAC\L3\Projet\dev_1\logo_mini.gif",master=self.root2)
         self.canvas2.create_image(self.root2.winfo_screenwidth()-self.root2.winfo_screenwidth()/20,self.root2.winfo_screenheight()-self.root2.winfo_screenheight()/12,image=self.logo)
 
     def _create_circle(self, x, y, r, **kwargs):
