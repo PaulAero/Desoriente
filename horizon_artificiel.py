@@ -1,6 +1,5 @@
 
 
-
 ## Définition classe horizon artificiel
 
 class HorizonArtificiel:
@@ -14,6 +13,8 @@ class HorizonArtificiel:
         self.root2.bind('<Escape>',lambda e: self.root2.destroy())
         self.canvas2 = tk.Canvas(self.root2, width=self.root2.winfo_screenwidth(), height=self.root2.winfo_screenheight(), borderwidth=0, highlightthickness=0, bg="black")
         self.canvas2.grid()
+        self.logo=tk.PhotoImage(file="D:/Users/Downloads/logo_mini.gif",master=self.root2)
+        self.canvas2.create_image(self.root2.winfo_screenwidth()-self.root2.winfo_screenwidth()/20,self.root2.winfo_screenheight()-self.root2.winfo_screenheight()/12,image=self.logo)
 
     def _create_circle(self, x, y, r, **kwargs):
         return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
@@ -85,24 +86,38 @@ class HorizonArtificiel:
         self.canvas2.create_rectangle(centre_abscisse-largeur_case/2,centre_ordonnee-longueur_case/2,centre_abscisse+largeur_case/2,centre_ordonnee+longueur_case/2, fill="grey",width=4)
         self.canvas2.create_polygon(centre_abscisse-largeur_case/2,(centre_ordonnee-longueur_case/2)*1.02,centre_abscisse-largeur_case/2,(centre_ordonnee+longueur_case/2)*0.98,(centre_abscisse-largeur_case/2)*0.99,centre_ordonnee, fill='black')
         self.canvas2.create_line((centre_abscisse-largeur_case/2)*0.99,centre_ordonnee,x1,centre_ordonnee, fill='black', width=2, dash=(10,20))
+
+        #Taille police graduations
+
+        import tkinter.font as font
+        taille_police=self.root2.winfo_screenheight()//80
+        font_graduations = font.Font(family='Arial', size=taille_police, weight="bold")
+
+
         ecartement=largeur_case/6
         unite=valeur_alti%10
         dizaine=(valeur_alti//10)%10
         centaine=(valeur_alti//100)%10
         millier=(valeur_alti//1000)%10
         dizaine_millier=(valeur_alti//10000)%10
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement,centre_ordonnee,text=str(unite),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*2,centre_ordonnee,text=str(dizaine),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*3,centre_ordonnee,text=str(centaine),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*4,centre_ordonnee,text=str(millier),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*5,centre_ordonnee,text=str(dizaine_millier),fill='#DDD',font='bold')
+
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement,centre_ordonnee,text=str(unite),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*2,centre_ordonnee,text=str(dizaine),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*3,centre_ordonnee,text=str(centaine),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*4,centre_ordonnee,text=str(millier),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*5,centre_ordonnee,text=str(dizaine_millier),fill='#DDD',font=font_graduations)
 
 
     def altimetre(self):
 
         import tkinter as tk
 
-        valeur_altitude=12345
+        valeur_altitude=12689
+
+        import tkinter.font as font
+        taille_police=self.root2.winfo_screenheight()//120
+        font_graduations = font.Font(family='Arial', size=taille_police, weight="bold")
+
         # Bloc
         longueur_rectangle=self.root2.winfo_screenheight()*2/3
         largeur_rectangle=self.root2.winfo_screenheight()*2/3
@@ -130,7 +145,7 @@ class HorizonArtificiel:
             gradient=(y1-y2)/800
             position_y=y2+(y1-y2)*i/8-delta_centaine_du_dessus*gradient
             self.canvas2.create_line(x1,position_y,x1+(x2-x1)/6,position_y, fill='#DDD', width=4)
-            self.canvas2.create_text(x1+(x2-x1)*1.7 /6,position_y,text=str(int(valeur_basse)),fill='#DDD',font='bold')
+            self.canvas2.create_text(x1+(x2-x1)*1.8/6,position_y,text=str(int(valeur_basse)),fill='#DDD',font=font_graduations)
             valeur_basse+=100
 
         # # Graduations
@@ -148,21 +163,27 @@ class HorizonArtificiel:
         self.canvas2.create_line((centre_abscisse+largeur_case/2)*1.04,centre_ordonnee,x2,centre_ordonnee, fill='black', width=2, dash=(10,20))
 
         # Chiffres
+
+        import tkinter.font as font
+        taille_police=self.root2.winfo_screenheight()//80
+        font_graduations = font.Font(family='Arial', size=taille_police, weight="bold")
         ecartement=largeur_case/6
         unite=valeur_anemo%10
         dizaine=(valeur_anemo//10)%10
         centaine=(valeur_anemo//100)%10
         millier=(valeur_anemo//1000)%10
         dizaine_millier=(valeur_anemo//10000)%10
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement,centre_ordonnee,text=str(unite),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*2,centre_ordonnee,text=str(dizaine),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*3,centre_ordonnee,text=str(centaine),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*4,centre_ordonnee,text=str(millier),fill='#DDD',font='bold')
-        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*5,centre_ordonnee,text=str(dizaine_millier),fill='#DDD',font='bold')
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement,centre_ordonnee,text=str(unite),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*2,centre_ordonnee,text=str(dizaine),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*3,centre_ordonnee,text=str(centaine),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*4,centre_ordonnee,text=str(millier),fill='#DDD',font=font_graduations)
+        self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*5,centre_ordonnee,text=str(dizaine_millier),fill='#DDD',font=font_graduations)
 
     def anemometre(self):
 
         valeur_vitesse=1120
+
+
         # Bloc
         longueur_rectangle=self.root2.winfo_screenheight()*2/3
         largeur_rectangle=self.root2.winfo_screenheight()*2/3
@@ -182,6 +203,10 @@ class HorizonArtificiel:
 
         # Graduations
 
+        import tkinter.font as font
+        taille_police=self.root2.winfo_screenheight()//120
+        font_graduations = font.Font(family='Arial', size=taille_police, weight="bold")
+
         unite=valeur_vitesse%10
         valeur_trait=(valeur_vitesse-unite)-50
         delta_dizaine_du_dessus=(valeur_vitesse//10+1)*10-valeur_vitesse
@@ -189,7 +214,7 @@ class HorizonArtificiel:
             gradient=(y1-y2)/120
             position_y=y2+(y1-y2)*i/12-delta_dizaine_du_dessus*gradient
             self.canvas2.create_line(x2-(x2-x1)/6,position_y,x2,position_y, fill='#DDD', width=4)
-            self.canvas2.create_text((x2-(x2-x1)/6)*0.95,position_y,text=str(int(valeur_trait)),fill='#DDD',font='bold')
+            self.canvas2.create_text((x2-(x2-x1)/6)*0.94,position_y,text=str(int(valeur_trait)),fill='#DDD',font=font_graduations)
             valeur_trait+=10
 
 
@@ -228,6 +253,10 @@ class HorizonArtificiel:
 # #             canvas.create_text(arrivee_x,arrivee_y*1.015,text=str(i-9),fill='#DDD',font='bold')
 
         # Graduations
+        import tkinter.font as font
+        taille_police=self.root2.winfo_screenheight()//100
+        font_graduations = font.Font(family='Arial', size=taille_police, weight="bold")
+        font_affichage_cap =font.Font(family='Arial',size=taille_police*2,weight="bold")
 
         # Valeur réelle centrée
 
@@ -235,7 +264,7 @@ class HorizonArtificiel:
         depart_y0=self.root2.winfo_screenheight()*6/5-self.root2.winfo_screenheight()/3
         arrivee_y0= self.root2.winfo_screenheight()*6/5
         self.canvas2.create_line(x0,depart_y0 ,x0,arrivee_y0,fill='#DDD', width=3)
-        self.canvas2.create_text(x0,self.root2.winfo_screenheight()-(self.root2.winfo_screenheight()-depart_y0)/3,text=str(valeur_cap),fill='red',font='Times 20 bold')
+        self.canvas2.create_text(x0,self.root2.winfo_screenheight()-(self.root2.winfo_screenheight()-depart_y0)/3,text=str(valeur_cap),fill='lime green',font=font_affichage_cap)
 
 
         for i in range(9,45):#GRANDES
@@ -244,7 +273,7 @@ class HorizonArtificiel:
             arrivee_x=self.centre_abscisse-0.93*self.root2.winfo_screenheight()/3*m.cos(i*m.pi/18-valeur_cap*m.pi/180)
             arrivee_y= self.root2.winfo_screenheight()*6/5-0.93*self.root2.winfo_screenheight()/3*m.sin(i*m.pi/18-valeur_cap*m.pi/180)
             self.canvas2.create_line(depart_x,depart_y ,arrivee_x,arrivee_y,fill='#DDD', width=3)
-            self.canvas2.create_text(arrivee_x,arrivee_y*1.015,text=str(i-9),fill='#DDD',font='bold')
+            self.canvas2.create_text(arrivee_x,arrivee_y*1.015,text=str(i-9),fill='#DDD',font=font_graduations)
 
 
         for i in range(1,72,2):#PETITES
@@ -272,7 +301,7 @@ class HorizonArtificiel:
         self.root2.destroy()
 
         import sys
-        sys.path.append("D:\FAC\L3\Projet\dev_1")
+        sys.path.append(r"C:/Users/paulp/OneDrive - etu.u-bordeaux.fr/L3/projet NAV")
         import Variometre_classe
         from Variometre_classe import Variometre
         monVario=Variometre()
@@ -280,10 +309,18 @@ class HorizonArtificiel:
 
     def bouton_horizon (self):
         import tkinter as tk
-        hauteur_bouton=self.root2.winfo_screenheight()//150
-        largeur_bouton=self.root2.winfo_screenheight()//50
-        bouton = tk.Button (self.root2,text = "Vers le Variomètre",fg="white",bg="red",height = hauteur_bouton, width = largeur_bouton,command=lambda:self.dessiner_vario())
-        ordonnee_bouton=(self.root2.winfo_screenheight()//2)-(self.root2.winfo_screenheight()//30)
+        import tkinter.font as font
+        # hauteur_bouton=self.root2.winfo_screenheight()//150
+        # largeur_bouton=self.root2.winfo_screenheight()//50
+        hauteur_bouton=4
+        largeur_bouton=len('To variometer')
+        taille_police=self.root2.winfo_screenheight()//100
+        # définir le font
+        f = font.Font(family='Arial', size=taille_police, weight="bold")
+        bouton = tk.Button (self.root2,text = "To variometer",font= f,fg="white",bg="grey",height = hauteur_bouton, width = largeur_bouton,command=lambda:self.dessiner_vario())
+        # appliquer la police à l'étiquette du bouton
+
+        ordonnee_bouton=self.root2.winfo_screenheight()/2-(hauteur_bouton+1)*taille_police
         bouton.place(x=self.root2.winfo_screenwidth()-((self.root2.winfo_screenwidth()//10)+largeur_bouton), y=ordonnee_bouton)
 
 
@@ -292,4 +329,3 @@ class HorizonArtificiel:
 
 mon_horizon_artificiel=HorizonArtificiel()
 mon_horizon_artificiel.horizon_artificiel()
-
