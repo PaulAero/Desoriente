@@ -40,7 +40,7 @@ class Variometre :
         self.screen_height = self.root.winfo_screenheight()
         self.canvas = tk.Canvas(self.root, width=self.screen_width, height=self.screen_height, borderwidth=0, highlightthickness=0, bg="black")
         self.canvas.grid()
-        self.logo=tk.PhotoImage(file="D:\FAC\L3\Projet\dev_1\logo_mini.gif",master=self.root)
+        self.logo=tk.PhotoImage(file="D:\FAC\L3\Projet\logo_mini.gif",master=self.root)
         self.canvas.create_image(self.screen_width-self.screen_width/20,self.screen_height-self.screen_height/12,image=self.logo)
 
 
@@ -237,7 +237,7 @@ class Variometre :
         self.root.destroy()
 
         import sys
-        sys.path.append("D:\FAC\L3\Projet\dev_1")
+        sys.path.append("D:\FAC\L3\Projet")
         import horizon_artificiel
         from horizon_artificiel import HorizonArtificiel
         mon_horizon_artificiel=HorizonArtificiel()
