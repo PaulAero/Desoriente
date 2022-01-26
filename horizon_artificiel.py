@@ -289,6 +289,7 @@ class HorizonArtificiel:
         self.anemometre()
         self.cap_magnetique()
         self.bouton_horizon()
+        self.bouton_carte()
         self.root2.wm_title("Horizon artificiel")
         self.root2.mainloop()
 
@@ -317,13 +318,33 @@ class HorizonArtificiel:
         taille_police=self.root2.winfo_screenheight()//100
         # définir le font
         f = font.Font(family='Arial', size=taille_police, weight="bold")
-        bouton = tk.Button (self.root2,text = "To variometer",font= f,fg="white",bg="grey",height = hauteur_bouton, width = largeur_bouton,command=lambda:self.dessiner_vario())
+        bouton = tk.Button (self.root2,text = "To Variometer",font= f,fg="white",bg="grey",height = hauteur_bouton, width = largeur_bouton,command=lambda:self.dessiner_vario())
         # appliquer la police à l'étiquette du bouton
 
         ordonnee_bouton=self.root2.winfo_screenheight()/2-(hauteur_bouton+1)*taille_police
         bouton.place(x=self.root2.winfo_screenwidth()-((self.root2.winfo_screenwidth()//10)+largeur_bouton), y=ordonnee_bouton)
 
+    def ouvrir_carte_gps(self):
 
+        self.root2.destroy()
+        self.maTrace.create_my_track()
+
+
+    def bouton_carte(self):
+        import tkinter as tk
+        import tkinter.font as font
+        import sys
+        sys.path.append(r"D:\FAC\L3\Projet")
+        import gps_interface
+        from gps_interface import Track
+        self.maTrace=Track()
+        height_button=4
+        width_button=len('To Track')
+        font_size=self.root2.winfo_screenheight()//100
+        f = font.Font(family='Arial', size=font_size, weight="bold")
+        button = tk.Button (self.root2,text = "To Track",font= f,fg="white",bg="grey",height = height_button, width = width_button,command=lambda:self.ouvrir_carte_gps())
+        button_vario_coordinate_y=self.root2.winfo_screenheight()/2-(height_button+1)*font_size
+        button.place(x=self.root2.winfo_screenwidth()//50, y=button_vario_coordinate_y)
 
 ##
 
