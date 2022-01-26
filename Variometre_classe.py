@@ -260,10 +260,37 @@ class Variometre :
         ordonnee_bouton=self.root.winfo_screenheight()/2-(hauteur_bouton+1)*taille_police
         bouton.place(x=(self.root.winfo_screenwidth()//20), y=ordonnee_bouton)
 
+    def ouvrir_carte_gps(self):
+
+        self.root.destroy()
+        self.maTrace.create_my_track()
+
+
+
+
+    def bouton_carte(self):
+        import tkinter as tk
+        import tkinter.font as font
+        import sys
+        sys.path.append(r"D:\FAC\L3\Projet")
+        import gps_interface
+        from gps_interface import Track
+        self.maTrace=Track()
+        height_button=4
+        width_button=len('To Track    ')
+        font_size=self.root.winfo_screenheight()//100
+        f = font.Font(family='Arial', size=font_size, weight="bold")
+        button = tk.Button (self.root,text = "To Track",font= f,fg="white",bg="grey",height = height_button, width = width_button,command=lambda:self.ouvrir_carte_gps())
+        button_vario_coordinate_y=self.root.winfo_screenheight()/2-(height_button+1)*font_size
+        button.place(x=self.root.winfo_screenwidth()-((self.root.winfo_screenwidth()//10)+width_button), y=button_vario_coordinate_y)
+
+
+
     def tracer_le_variometre(self):
         self.tracer_vario_statique()
         self.aiguille()
         self.bouton_vario()
+        self.bouton_carte()
         self.root.mainloop()
 
 
