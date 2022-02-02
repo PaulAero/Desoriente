@@ -18,9 +18,9 @@ class Track:
         # Object fmap created
         map=folium.Map(location=[44.8448769,-0.656358],zoom_start=self.zoom)
         # Adding the line and saving the file
-        map.save(r'D:\FAC\L3\Projet\myMap.html')
-        hti = Html2Image(output_path=r'D:\FAC\L3\Projet')
-        hti.screenshot(url=r'D:\FAC\L3\Projet\myMap.html', save_as='map_adapted.gif')
+        map.save(r'C:\Users\dubou\Documents\Python\myMap.html')
+        hti = Html2Image(output_path=r'C:\Users\dubou\Documents\Python')
+        hti.screenshot(url=r'C:\Users\dubou\Documents\Python\myMap.html', save_as='map_adapted.gif')
 
 ##                                       End init                                         ##     
      
@@ -42,30 +42,28 @@ class Track:
         self.canvas=tk.Canvas(self.root,  scrollregion =(0, 0, size_map_x,size_map_y), width=self.root.winfo_screenwidth()-30, height=self.root.winfo_screenheight()-30, bg='ivory')
         self.canvas.grid()
         self.create_button_focus()
-        self.create_button_horizon()
-        self.create_button_variometer()
         
         ## Scrollbars
-        xscroll=ttk.Scrollbar(self.root, orient=tk.HORIZONTAL)
-        yscroll=ttk.Scrollbar(self.root, orient=tk.VERTICAL)
+        self.xscroll=ttk.Scrollbar(self.root, orient=tk.HORIZONTAL)
+        self.yscroll=ttk.Scrollbar(self.root, orient=tk.VERTICAL)
         
         
-        xscroll.grid(row=1, column=0, sticky=tk.E+tk.W)
-        yscroll.grid(row=0, column=1,  sticky=tk.S+tk.N)
+        self.xscroll.grid(row=1, column=0, sticky=tk.E+tk.W)
+        self.yscroll.grid(row=0, column=1,  sticky=tk.S+tk.N)
         
-        xscroll["command"]=self.canvas.xview
-        yscroll["command"]=self.canvas.yview
+        self.xscroll["command"]=self.canvas.xview
+        self.yscroll["command"]=self.canvas.yview
         self.canvas.yview_moveto(0.25)
         self.canvas.xview_moveto(0.25)
-        self.canvas['xscrollcommand']=xscroll.set
-        self.canvas['yscrollcommand']=yscroll.set
+        self.canvas['xscrollcommand']=self.xscroll.set
+        self.canvas['yscrollcommand']=self.yscroll.set
         
         
         
         
         ##Backgroung picture imported, resized and included on the screen
 
-        map_city=Image.open(r'D:\FAC\L3\Projet\map_adapted.gif')
+        map_city=Image.open(r'C:\Users\dubou\Documents\Python\map_adapted.gif')
         w,h=2*self.root.winfo_screenwidth(),2*self.root.winfo_screenheight()
         map_city=map_city.resize((w,h))
         map_city=ImageTk.PhotoImage(map_city,master=self.root)
@@ -78,12 +76,6 @@ class Track:
         self.root.mainloop()
         
         
-        
-
-
-
-
-
         
 ## This method is used to initialize the coordinates of the NW and SE points and to determinate the values of a pixel in both directions
     def data_initialisation(self):
@@ -102,7 +94,7 @@ class Track:
         import gpxpy
         
         #Reading in a gpx file
-        gpx_file= open(r'D:\FAC\L3\Projet\trajet.gpx')
+        gpx_file= open(r'C:\Users\dubou\Documents\Python\trajet.gpx')
         gpx=gpxpy.parse(gpx_file)
         
         
@@ -133,19 +125,20 @@ class Track:
         import gpxpy
         import tkinter as tk
         from PIL import Image,ImageTk
+        from math import atan,pi
         
         
         # In this part, we import and resize the picture of the plane used for the animation
         
-        plane=Image.open(r'D:\FAC\L3\Projet\plane_above.png')
+        plane=Image.open(r'C:\Users\dubou\Documents\Python\plane_above.png')
         w,h=self.root.winfo_screenwidth()//10,self.root.winfo_screenheight()//10
         plane=plane.resize((w,h))
-        plane=ImageTk.PhotoImage(plane,master=self.root)
+        #plane=ImageTk.PhotoImage(plane,master=self.root)
         
         ## This part of the method is temporary.It is used to develop the part of the code where you draw the path of the plane in real time
         
         #Reading in a gpx file
-        gpx_file= open(r'D:\FAC\L3\Projet\trajet.gpx','r')
+        gpx_file= open(r'C:\Users\dubou\Documents\Python\trajet.gpx','r')
         gpx=gpxpy.parse(gpx_file)
         
         # Definition of the variables
@@ -155,29 +148,75 @@ class Track:
         # Initialisation with the position of the gps before taking off
         old_map_x=self.root.winfo_screenwidth()
         old_map_y=self.root.winfo_screenheight()
-        picture_plane=self.canvas.create_image(old_map_x,old_map_y, anchor='center',image = plane)
+        old_position_x=self.coordinates_x0
+        old_position_y=self.coordinates_y0
+        modified_plane=plane.rotate(90)
+        modified_plane=ImageTk.PhotoImage(plane,master=self.root)
+        picture_plane=self.canvas.create_image(old_map_x,old_map_y, anchor='center',image = modified_plane)
         
         # These for are used to go through all the data in the gpx file
         for track in gpx.tracks:
             for segment in track.segments:
                 for point in segment.points:
                     
+                    
                     #print('({0},{1})->{2}'.format(point.latitude,point.longitude,point.elevation))
+                    
+                    
                     # Conversion of the values of the latitude and longitude into the number of pixel they represent on the screen 
                     position_x=point.longitude
                     position_y=point.latitude
                     self.map_x=self.root.winfo_screenwidth()+2*(position_x-self.coordinates_x0)/self.value_pixel_x
                     self.map_y=self.root.winfo_screenheight()-2*(-self.coordinates_y0+position_y)/self.value_pixel_y
                     self.canvas.create_line(self.map_x,self.map_y,old_map_x,old_map_y,fill='red',width=5)
+                    if (position_x-old_position_x)!=0: #Division by 0
+                        angle=0
+                        if position_x-old_position_x>=0 and position_y-old_position_y>=0: #1st quarter
+                            angle=atan((position_y-old_position_y)/(position_x-old_position_x))*180/pi+270
+                        elif position_x-old_position_x>=0 and position_y-old_position_y<=0: #2nd quarter
+                            angle=atan((position_y-old_position_y)/(position_x-old_position_x))*180/pi+270
+                        elif position_x-old_position_x<=0 and position_y-old_position_y<=0: #3rd quarter
+                           angle=atan((position_y-old_position_y)/(position_x-old_position_x))*180/pi+90
+                        else: #Last quarter
+                            angle=atan((position_y-old_position_y)/(position_x-old_position_x))*180/pi-270
+                    
+                    modified_plane=plane.rotate(angle)
+                    modified_plane=ImageTk.PhotoImage(modified_plane,master=self.root)
+                    picture_plane=self.canvas.create_image(old_map_x,old_map_y, anchor='center',image = modified_plane)
                     self.canvas.delete(self.root,picture_plane)
-                    picture_plane=self.canvas.create_image(self.map_x,self.map_y, anchor='center',image = plane)
+                    picture_plane=self.canvas.create_image(self.map_x,self.map_y, anchor='center',image = modified_plane)
                     
                     
-                    # We save the old value in order to link the last point to the new one
+                    
+                    # We save the old values in order to link the last point to the new one
                     old_map_x=self.map_x
                     old_map_y=self.map_y
-                    self.focus_on_my_position()
-                    time.sleep(0.15)
+                    old_position_x=position_x
+                    old_position_y=position_y
+                    
+                    
+                    # If the image is already centered, we keep centering it. To know if we need to do something, we compare the position the bars should have to the one they have
+                    
+                    position_x,position_y=self.get_my_real_time_position_map()
+                    ratio_x=abs(position_x)/(2*self.root.winfo_screenwidth())
+                    ratio_y=abs(position_y)/(2*self.root.winfo_screenheight())
+                    
+                    # if the position is too close to a border, the position will be 0
+                    if ratio_x<0.25:
+                        centered_position_x=0
+                    else:
+                        centered_position_x=ratio_x-0.25
+                        
+                    if ratio_y<0.25: 
+                        centered_position_y=0
+                    else:
+                        centered_position_y=ratio_y-0.25
+            
+                    horizontal_1,horizontal_2=self.xscroll.get()
+                    vertical_1,vertical_2=self.yscroll.get()
+                    if abs(horizontal_1-centered_position_x)<=0.05 and abs(vertical_1-centered_position_y)<=0.05:
+                        self.focus_on_my_position()
+                    time.sleep(0.3)
                     self.root.update()
                     
         
@@ -218,58 +257,6 @@ class Track:
         valider =tk.Button(self.root, text = "Recenter", background='white',command=self.focus_on_my_position)
         valider.place(x = button_coordinate_x, y= button_coordinate_y, height=height_button, width=width_button)
         
-        
-    def draw_variometer(self):
-
-        self.root.destroy()
-
-        import sys
-        sys.path.append("D:\FAC\L3\Projet")
-        import Variometre_classe
-        from Variometre_classe import Variometre
-        mon_variometre=Variometre()
-        mon_variometre.tracer_le_variometre()
-
-
-    def create_button_variometer(self):
-        import tkinter as tk
-        import tkinter.font as font
-        height_button=4
-        width_button=len('To Variometer')
-        font_size=self.root.winfo_screenheight()//100
-        f = font.Font(family='Arial', size=font_size, weight="bold")
-        button = tk.Button (self.root,text = "To Variometer",font= f,fg="white",bg="grey",height = height_button, width = width_button,command=lambda:self.draw_variometer())
-        button_vario_coordinate_y=self.root.winfo_screenheight()/2-(height_button+1)*font_size
-        button.place(x=self.root.winfo_screenwidth()//50, y=button_vario_coordinate_y)
-
-
-    def draw_horizon(self):
-
-        self.root.destroy()
-
-        import sys
-        sys.path.append("D:\FAC\L3\Projet")
-        import horizon_artificiel
-        from horizon_artificiel import HorizonArtificiel
-        mon_horizon_artificiel=HorizonArtificiel()
-        mon_horizon_artificiel.horizon_artificiel()
-
-
-    def create_button_horizon(self):
-        import tkinter as tk
-        import tkinter.font as font
-        height_button=4
-        width_button=len('To Atificial Horizon')
-        font_size=self.root.winfo_screenheight()//100
-        f = font.Font(family='Arial', size=font_size, weight="bold")
-        button = tk.Button (self.root,text = "To Artificial Horizon",font= f,fg="white",bg="grey",height = height_button, width = width_button,command=lambda:self.draw_horizon())
-        button_coordinate_y=self.root.winfo_screenheight()/2-(height_button+1)*font_size
-        button.place(x=self.root.winfo_screenwidth()-((self.root.winfo_screenwidth()//10)+width_button*3), y=button_coordinate_y)
-
-        
-        
-        
-    
         ### Add the logo of the project
         # logo=Image.open(r'C:\Users\dubou\Documents\Python\logo_mini.gif')
         # w,h=self.root.winfo_screenwidth()//20,self.root.winfo_screenheight()//20
