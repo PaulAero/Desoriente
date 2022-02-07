@@ -107,6 +107,10 @@ class HorizonArtificiel:
         self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*4,centre_ordonnee,text=str(millier),fill='#DDD',font=font_graduations)
         self.canvas2.create_text(centre_abscisse+largeur_case/2-ecartement*5,centre_ordonnee,text=str(dizaine_millier),fill='#DDD',font=font_graduations)
 
+    #affichage pression
+
+    text_pression = "QNH"
+
 
     def altimetre(self):
 
@@ -153,6 +157,23 @@ class HorizonArtificiel:
         # for i in range(1,9):
         #     canvas.create_line(x1,(y1-y2)*i/8,x1+(x2-x1)/4,(y1-y2)*i/8, fill='#DDD', width=4)
         #     canvas.create_text(arrivee_x,arrivee_y*1.015,text=str(i-9),fill='#DDD',font='bold')
+
+        police_pression = tk.font.Font ( family = "Arial" , size = 24 , weight = "normal" )
+        pression_affichage = tk.Label( self.root2, font = police_pression, fg = '#36df00', bg = '#ffffff', width = 12, text = self.text_pression)
+        pression_affichage.place(x = (x1+x2)//2, y = y1+y1//40, anchor = 'center')
+
+        def mode_pression(self):
+            if self.text_pression == "QNH":
+                self.text_pression = "STD"
+            else:
+                self.text_pression = "QNH"
+            pression_affichage.config(text = self.text_pression)
+
+        #Affichage pression
+        bouton_pression = tk.Button(self.root2, text = "Set pressure", width = 12, command = lambda:mode_pression(self))
+        bouton_pression.place(x = (x1+x2)//2 + x1//8, y = y1+y1//40, anchor = 'center')
+
+
 
 
     def creation_affichage_num_anemo(self,largeur_case,longueur_case,centre_abscisse,centre_ordonnee,x2,valeur_anemo):
@@ -297,39 +318,53 @@ class HorizonArtificiel:
 
 ##                                           Creation du bouton vers le variometre
 
+
+# Fonction permettant d'instancier un objet de la classe Variometre
     def dessiner_vario(self):
 
+        #Destruction de la fenêtre actuelle
         self.root2.destroy()
 
+        #Importation de la classe Variometre présente dans le fichier Variometre_classe
         import sys
         sys.path.append(r"D:\FAC\L3\Projet")
         import Variometre_classe
         from Variometre_classe import Variometre
+
+        #Instanciation de l'objet monVario
         monVario=Variometre()
+
+        #Appel de la fonction tracer_le_variometre afin d'afficher l'interface
         monVario.tracer_le_variometre()
 
+
+# Fonction permettant de créer un bouton pour passer à l'interface du variomètre
     def bouton_horizon (self):
+
         import tkinter as tk
         import tkinter.font as font
-        # hauteur_bouton=self.root2.winfo_screenheight()//150
-        # largeur_bouton=self.root2.winfo_screenheight()//50
+
         hauteur_bouton=4
         largeur_bouton=len('To variometer')
         taille_police=self.root2.winfo_screenheight()//100
-        # définir le font
-        f = font.Font(family='Arial', size=taille_police, weight="bold")
-        bouton = tk.Button (self.root2,text = "To Variometer",font= f,fg="white",bg="grey",height = hauteur_bouton, width = largeur_bouton,command=lambda:self.dessiner_vario())
-        # appliquer la police à l'étiquette du bouton
 
+        #On définit la police "font"
+        f = font.Font(family='Arial', size=taille_police, weight="bold")
+
+        #Création du bouton avec comme commande l'appel de la fonction dessiner_vario
+        bouton = tk.Button (self.root2,text = "To Variometer",font= f,fg="white",bg="grey",height = hauteur_bouton, width = largeur_bouton,command=lambda:self.dessiner_vario()) # on applique la police à l'étiquette du bouton
         ordonnee_bouton=self.root2.winfo_screenheight()/2-(hauteur_bouton+1)*taille_police
         bouton.place(x=self.root2.winfo_screenwidth()-((self.root2.winfo_screenwidth()//10)+largeur_bouton), y=ordonnee_bouton)
+
+
+# Fonction permettant d'ouvrir
 
     def ouvrir_carte_gps(self):
 
         self.root2.destroy()
         self.maTrace.create_my_track()
 
-
+# Fonction permettant de créer un bouton pour passer à l'interface GPS
     def bouton_carte(self):
         import tkinter as tk
         import tkinter.font as font
