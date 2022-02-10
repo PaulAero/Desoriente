@@ -26,19 +26,64 @@ class HorizonArtificiel:
         y1=self.centre_ordonnee+largeur_rectangle/2
         x2=self.centre_abscisse+longueur_rectangle/2
         y2=self.centre_ordonnee-largeur_rectangle/2
-        self.canvas2.create_rectangle(x1,y1,x2,(y1+y2)/2, fill="maroon")
-        self.canvas2.create_rectangle(x1,(y1+y2)/2,x2,y2, fill="sky blue")
+        
+        #echelle
+        ecart_dizaines=(y1-(y1+y2)/2)*2/5
+        
+        # recuperation de notre orientation
+        orientation = sense.get_orientation_degrees()
+        
+        #calcul de l'orientation selon l'échelle
+        if orientation['pitch'] < 180:
+            tangage = orientation['pitch']*ecart_dizaines/10
+        else:
+            tangage = (orientation['pitch']-360)*ecart_dizaines/10
+        
+        if orientation['roll'] < 180:
+            roulis = orientation['roll']*0.44*largeur_rectangle*m.cos(m.pi/6)/30
+        else:
+            roulis = (orientation['roll']-360)*0.44*largeur_rectangle*m.cos(m.pi/6)/10
+        
+        #on dessine la partie bleu (ciel) et maron (terre) de l'horizon artificiel
+        canvas.create_polygon((x1,y1), (x1,(y1+y2)/2 - (tangage-roulis/2)), (x2,(y1+y2)/2 - (tangage+roulis/2)), (x2, y1), fill="maroon")
+        canvas.create_polygon((x1,(y1+y2)/2 - (tangage-roulis/2)),(x1, y2),(x2,y2), (x2, (y1+y2)/2 - (tangage+roulis/2)), fill="sky blue")
+        
+        #deplacement de la graduation
+        def delta_nouvel_emplacement(x1, y1, x2, y2, alpha, ecart, signe) :
+            
+            from math import *
+            
+            x_carre = (x2-x1)*(x2-x1)
+            y_carre = (y2-y1)*(y2-y1)
+            norme = sqrt(x_carre+y_carre)
+            
+            #nouvelle coordonnee du point de depart
+            x_A = (0-norme)/2 * cos(alpha) + ecart*signe*cos(90-alpha)
+            y_A = (0-norme)/2 * sin(alpha) + ecart*signe*sin(90-alpha)
+            
+            #nouvelle coordonnee du point d'arriver
+            x_B = norme/2 * cos(alpha) + ecart*signe*cos(90-alpha)
+            y_A = norme/2 * sin(alpha) + ecart*signe*sin(90-alpha)
+            
+            return x_A, y_A, x_B, y_B
+        
         # Graduations horizontales
         self.canvas2.create_line(x1, (y1+y2)/2, x2,(y1+y2)/2,fill='#DDD',width=4) #CENTRALE
-        ecart_dizaines=(y1-(y1+y2)/2)*2/5
+        
         for i in [-1,1]:#GRADUATION
-            self.canvas2.create_line(x1+(x2-x1)/3, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*2/3,(y1+y2)/2+ecart_dizaines*i,fill='#DDD',width=4)
-            self.canvas2.create_text(x1+(x2-x1)/4,(y1+y2)/2+ecart_dizaines*i,text='10',fill='#DDD',font='bold')
-            self.canvas2.create_text(x2-(x2-x1)/4,(y1+y2)/2+ecart_dizaines*i,text='10',fill='#DDD',font='bold')
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(x1+(x2-x1)/3, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*2/3,(y1+y2)/2+ecart_dizaines*i, roulis, ecart_dizaines*i, i/i)
+            self.canvas2.create_line(x_A, y_A, x_B, y_B, fill='#DDD',width=4)
+            self.canvas2.create_text(x_A,y_A,text='10',fill='#DDD',font='bold')
+            self.canvas2.create_text(x_B,y_B,text='10',fill='#DDD',font='bold')
+        
         for i in [-1/2,-3/2,1/2,3/2]:#DEMI GRADUATION
-            self.canvas2.create_line(x1+(x2-x1)*2/5, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*3/5,(y1+y2)/2+ecart_dizaines*i,fill='#DDD',width=4)
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(x1+(x2-x1)*2/5, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*3/5,(y1+y2)/2+ecart_dizaines*i, roulis, ecart_dizaines*i, i/i)
+            self.canvas2.create_line(x_A, y_A, x_B, y_B,fill='#DDD',width=4)
+        
         for i in [-1/4,1/4,-3/4,-5/4,-7/4,3/4,5/4,7/4]: #QUARTS DE GRADUATION
-            self.canvas2.create_line(x1+(x2-x1)*5/11, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*6/11,(y1+y2)/2+ecart_dizaines*i,fill='#DDD',width=4)
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(x1+(x2-x1)*5/11, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*6/11,(y1+y2)/2+ecart_dizaines*i, roulis, ecart_dizaines*i, i/i)
+            self.canvas2.create_line(x_A, y_A, x_B, y_B,fill='#DDD',width=4)
+        
         # Graduations arc de cercle
         for i in [2,4,5,13]: #GRANDES
             self.canvas2.create_line(self.centre_abscisse-0.44*largeur_rectangle*m.cos(i*m.pi/6),self.centre_ordonnee-0.44*largeur_rectangle*m.sin(i*m.pi/6),self.centre_abscisse-0.49*largeur_rectangle*m.cos(i*m.pi/6),self.centre_ordonnee-0.49*largeur_rectangle*m.sin(i*m.pi/6),fill='#DDD', width=3)
