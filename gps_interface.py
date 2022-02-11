@@ -8,6 +8,7 @@ class Track:
         ##Import libraries
         import folium
         from html2image import Html2Image
+        from gps import gps,WATCH_ENABLE,WATCH_NEWSTYLE
 
         ## Choice of the zoom
         
@@ -16,20 +17,23 @@ class Track:
         ##For the map in the backgroung, we choose to take the first position as reference (center point)
         hti = Html2Image()
         # Object fmap created
-        map=folium.Map(location=[44.8448769,-0.656358],zoom_start=self.zoom)
-        # Adding the line and saving the file
+        gpsd=gps(mode=WATCH_ENABLE|WATCH_NEWSTYLE)
+        self.initial_lat,self.initial_lon=self.getPositionData(gpsd)
+        map=folium.Map(location=[self.initial_lon,self.initial_lat],zoom_start=self.zoom)
+#         # Adding the line and saving the file
         map.save('myMap.html')
         #hti = Html2Image(output_path='Python')
-        #hti.screenshot(url='myMap.html', save_as='map_adapted.gif')
+        hti.screenshot(url='myMap.html', save_as='map_adapted.gif')
 
 ##                                       End init                                         ##     
-     
+        
     # Create my track
     def create_my_track(self):
         
         import tkinter as tk
         from PIL import Image,ImageTk
         from tkinter import ttk
+        import time
         
         
         ##Objects from classes Tk and Canvas created and customised
@@ -72,7 +76,12 @@ class Track:
         self.canvas.create_image((size_map_x//2, size_map_y//2), image=map_city)
         self.data_initialisation()
         self.data_planned_flight()
-        self.data_recovery()
+        self.bouton_click=False
+        while self.bouton_click==False:
+            self.data_recovery()
+            time.sleep(2)
+            self.root.update()
+            
         
         
         self.root.mainloop()
@@ -82,15 +91,18 @@ class Track:
 ## This method is used to initialize the coordinates of the NW and SE points and to determinate the values of a pixel in both directions
     def data_initialisation(self):
         # Initialisation of the coordinates of the center point
-        self.coordinates_y0=44.8448769
-        self.coordinates_x0=-0.656358
+        self.coordinates_y0=self.initial_lon
+        self.coordinates_x0=self.initial_lat
         
         
         ####Value of a pixel  A GENERALISER AVEC LA TAILLE DE LA PHOTO SUR LE SITE 
         self.value_pixel_x=360/(256*800/1920*pow(2,self.zoom))
         self.value_pixel_y=360/(256*480/1080*7/5*pow(2,self.zoom))
         ## 7/5 facteur agrandissement entre la page html et la photo + les rapports de pixels entre la photo et la taille de l'écran
-        
+        return(self.value_pixel_x,self.value_pixel_y)
+    
+    def data_screen(self):
+        return(self.root.winfo_screenwidth(),self.root.winfo_screenheight())
     # This method is used to draw the planned path on the map
     def data_planned_flight(self):
             
@@ -102,6 +114,9 @@ class Track:
         
         
         # Initialisation with the position of the gps before taking off
+#         old_map_x=self.initial_lon
+#         old_map_y=self.initial_lat
+
         old_map_x=self.root.winfo_screenwidth()
         old_map_y=self.root.winfo_screenheight()
         
@@ -147,18 +162,12 @@ class Track:
         # In this part, we import and resize the picture of the plane used for the animation
         
         plane=Image.open('plane_above.png')
-        w,h=self.root.winfo_screenwidth()//10,self.root.winfo_screenheight()//10
+        self.width,self.height=self.data_screen()
+        w,h=self.width//10,self.height//10
         plane=plane.resize((w,h))
         #plane=ImageTk.PhotoImage(plane,master=self.root)
         
-        ## This part of the method is temporary.It is used to develop the part of the code where you draw the path of the plane in real time
-        
-        
-        
-        # Definition of the variables
-        self.height=self.root.winfo_screenheight()
-        self.width=self.root.winfo_screenwidth()
-        
+    
         # Initialisation with the position of the gps before taking off
         old_map_x=self.root.winfo_screenwidth()
         old_map_y=self.root.winfo_screenheight()
@@ -172,12 +181,12 @@ class Track:
         # Conversion of the values of the latitude and longitude into the number of pixel they represent on the screen 
         gpsd=gps.gps(mode=WATCH_ENABLE|WATCH_NEWSTYLE)
         position_x, position_y = self.getPositionData(gpsd)
-        self.map_x=self.root.winfo_screenwidth()+2*(position_x-self.coordinates_x0)/self.value_pixel_x
-        self.map_y=self.root.winfo_screenheight()-2*(-self.coordinates_y0+position_y)/self.value_pixel_y
+        self.map_x=self.width+2*(position_x-self.coordinates_x0)/self.value_pixel_x
+        self.map_y=self.height-2*(-self.coordinates_y0+position_y)/self.value_pixel_y
         self.canvas.create_line(self.map_x,self.map_y,old_map_x,old_map_y,fill='red',width=3)
-        if (position_x-old_position_x)!=0: #Division by 0
+        if (position_x-old_position_x)==0: #Division by 0
             angle=0
-        if position_x-old_position_x>=0 and position_y-old_position_y>=0: #1st quarter
+        elif position_x-old_position_x>=0 and position_y-old_position_y>=0: #1st quarter
             angle=atan((position_y-old_position_y)/(position_x-old_position_x))*180/pi+270
         elif position_x-old_position_x>=0 and position_y-old_position_y<=0: #2nd quarter
             angle=atan((position_y-old_position_y)/(position_x-old_position_x))*180/pi+270
@@ -204,8 +213,8 @@ class Track:
         # If the image is already centered, we keep centering it. To know if we need to do something, we compare the position the bars should have to the one they have
             
         position_x,position_y=self.map_x,self.map_y
-        ratio_x=abs(position_x)/(2*self.root.winfo_screenwidth())
-        ratio_y=abs(position_y)/(2*self.root.winfo_screenheight())
+        ratio_x=abs(position_x)/(2*self.width)
+        ratio_y=abs(position_y)/(2*self.height)
         
         # if the position is too close to a border, the position will be 0
         if ratio_x<0.25:
@@ -221,7 +230,7 @@ class Track:
         horizontal_1,horizontal_2=self.xscroll.get()
         vertical_1,vertical_2=self.yscroll.get()
         if abs(horizontal_1-centered_position_x)<=0.05 and abs(vertical_1-centered_position_y)<=0.05:
-            self.focus_on_my_position(self.map_x,self.map_y)
+            self.focus_on_my_position()
         self.root.update()
 
                 
@@ -229,10 +238,17 @@ class Track:
 
     ## This button can be used to update the position of the scrollbars in order to see the real time position at the center of the screen
     
-    def focus_on_my_position(self,map_x,map_y):
-        position_x,position_y=map_x,map_y
-        ratio_x=abs(position_x)/(2*self.root.winfo_screenwidth())
-        ratio_y=abs(position_y)/(2*self.root.winfo_screenheight())
+    def focus_on_my_position(self):
+        from gps import WATCH_ENABLE,WATCH_NEWSTYLE,gps
+        gpsd=gps(mode=WATCH_ENABLE|WATCH_NEWSTYLE)
+        position_x,position_y=self.getPositionData(gpsd)
+        value_pixel_x,value_pixel_y=self.data_initialisation()
+        self.width,self.height=self.data_screen()
+        where_map_x=self.width+2*(position_x-self.coordinates_x0)/value_pixel_x
+        where_map_y=self.height-2*(-self.coordinates_y0+position_y)/value_pixel_y
+    ### En pixels pas en degres########################################"
+        ratio_x=abs(where_map_x)/(2*self.width)
+        ratio_y=abs(where_map_y)/(2*self.height)
         # if the position is too close to a border, the position will be 0
         if ratio_x<0.25:
             self.canvas.xview_moveto(0)
@@ -253,19 +269,19 @@ class Track:
         width_button=self.root.winfo_screenwidth()/10
         button_coordinate_x=0
         button_coordinate_y=0
-        valider =tk.Button(self.root, text = "Recenter", background='white',command=self.focus_on_my_position)
+        valider =tk.Button(self.root, text = "Recenter", background='white',command=lambda:self.focus_on_my_position())
         valider.place(x = button_coordinate_x, y= button_coordinate_y, height=height_button, width=width_button)
         
         
     def draw_variometer(self):
 
         self.root.destroy()
-
         
         import Variometre_classe
         from Variometre_classe import Variometre
         mon_variometre=Variometre()
         mon_variometre.tracer_le_variometre()
+        self.bouton_click=True
 
 
     def create_button_variometer(self):
@@ -283,12 +299,12 @@ class Track:
     def draw_horizon(self):
 
         self.root.destroy()
-
         
         import horizon_artificiel
         from horizon_artificiel import HorizonArtificiel
         mon_horizon_artificiel=HorizonArtificiel()
         mon_horizon_artificiel.horizon_artificiel()
+        self.bouton_click=True
 
 
     def create_button_horizon(self):
@@ -301,7 +317,8 @@ class Track:
         button = tk.Button (self.root,text = "To Artificial Horizon",font= f,fg="white",bg="grey",height = height_button, width = width_button,command=lambda:self.draw_horizon())
         button_coordinate_y=self.root.winfo_screenheight()/2-(height_button+1)*font_size
         button.place(x=self.root.winfo_screenwidth()-((self.root.winfo_screenwidth()//10)+width_button*3), y=button_coordinate_y)
-        
+    
+ 
         ### Add the logo of the project
         # logo=Image.open(r'C:\Users\dubou\Documents\Python\logo_mini.gif')
         # w,h=self.root.winfo_screenwidth()//20,self.root.winfo_screenheight()//20
@@ -315,8 +332,5 @@ class Track:
 #     # def save_data_csv(self):
  
 track = Track()
+#track.loop_gps()
 track.create_my_track()
-
-
-
- 
