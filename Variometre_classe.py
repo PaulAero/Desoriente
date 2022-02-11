@@ -158,18 +158,20 @@ class Variometre :
             angle_vario=(vitesse*60)/(1000)
             angle_python=180+angle_vario
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, angle_python)
-            self.texte=self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " ft/min ", fill ="ivory2", font=font_sup_bas)
+            vitesse = vitesse/1000
+            str_vitesse = "%.2f" % vitesse
+            self.texte=self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " x1000 ft/min ", fill ="ivory2", font=font_sup_bas)
             
         elif vitesse < 0 and vitesse>-3000:
             angle_vario=(abs(vitesse)*60)/(1000)
             angle_python=180-angle_vario
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, angle_python)
-            self.texte=self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " ft/min ", fill ="red", font=font_sup_bas)
+            self.texte=self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str_vitesse + " x1000 ft/min ", fill ="red", font=font_sup_bas)
             
         else:
             self.canvas.create_text(position_texte_limite,text ="Speed ​​limit reached \n", fill ="orange red", font=font_sup_haut)
             self.rotation_ligne_aiguille(self.canvas, self.screen_width/2, self.screen_height/2, 3*self.rayon_cercle/6, 0)
-            self.self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str(vitesse) + " ft/min ", fill ="red", font=font_sup_bas)
+            self.self.canvas.create_text(position_texte_vitesse,text ="Your current speed is : " + str_vitesse + " x1000 ft/min ", fill ="red", font=font_sup_bas)
           
 ##                                        Création du bouton vers l'horizon artificiel
     def dessiner_horizon(self):
