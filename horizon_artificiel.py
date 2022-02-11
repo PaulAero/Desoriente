@@ -14,9 +14,16 @@ class HorizonArtificiel:
         return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
     import tkinter as tk
     tk.Canvas.create_circle = _create_circle
+    
+    #initialisation angle de roulis
+    alpha = 0
+    
     # Partie Horizon
     def horizon(self):
         import math as m
+        from sense_hat import SenseHat
+        
+        sense=SenseHat()
         # Blocs
         self.centre_abscisse=self.root2.winfo_screenwidth()/2
         self.centre_ordonnee=self.root2.winfo_screenheight()/2
@@ -40,48 +47,74 @@ class HorizonArtificiel:
             tangage = (orientation['pitch']-360)*ecart_dizaines/10
         
         if orientation['roll'] < 180:
+            self.alpha = orientation['roll']
             roulis = orientation['roll']*0.44*largeur_rectangle*m.cos(m.pi/6)/30
         else:
+            self.alpha = orientation['roll']-360
             roulis = (orientation['roll']-360)*0.44*largeur_rectangle*m.cos(m.pi/6)/10
         
-        #on dessine la partie bleu (ciel) et maron (terre) de l'horizon artificiel
-        canvas.create_polygon((x1,y1), (x1,(y1+y2)/2 - (tangage-roulis/2)), (x2,(y1+y2)/2 - (tangage+roulis/2)), (x2, y1), fill="maroon")
-        canvas.create_polygon((x1,(y1+y2)/2 - (tangage-roulis/2)),(x1, y2),(x2,y2), (x2, (y1+y2)/2 - (tangage+roulis/2)), fill="sky blue")
-        
+        #print(self.alpha)
+                
         #deplacement de la graduation
-        def delta_nouvel_emplacement(x1, y1, x2, y2, alpha, ecart, signe) :
+        def delta_nouvel_emplacement(self, x1, y1, x2, y2, ecart, signe) :
             
-            from math import *
+            from math import sqrt,cos,sin, pi
             
             x_carre = (x2-x1)*(x2-x1)
             y_carre = (y2-y1)*(y2-y1)
             norme = sqrt(x_carre+y_carre)
             
-            #nouvelle coordonnee du point de depart
-            x_A = (0-norme)/2 * cos(alpha) + ecart*signe*cos(90-alpha)
-            y_A = (0-norme)/2 * sin(alpha) + ecart*signe*sin(90-alpha)
+            PI = pi
+            #conversion en radian
+            alpha_rad = self.alpha*PI/180
             
+            #nouvelle coordonnee du point de depart
+            x_A = self.root2.winfo_screenwidth()//2 - norme/2 * cos(alpha_rad) + ecart*signe*cos(PI/2-alpha_rad)
+            y_A = self.root2.winfo_screenheight()//2 - norme/2 * sin(alpha_rad)- ecart*signe*sin(PI/2-alpha_rad)
             #nouvelle coordonnee du point d'arriver
-            x_B = norme/2 * cos(alpha) + ecart*signe*cos(90-alpha)
-            y_A = norme/2 * sin(alpha) + ecart*signe*sin(90-alpha)
+            x_B = self.root2.winfo_screenwidth()//2+norme/2 * cos(alpha_rad) + ecart*signe*cos(PI/2-alpha_rad)
+            y_B = self.root2.winfo_screenheight()//2+norme/2 * sin(alpha_rad) - ecart*signe*sin(PI/2-alpha_rad)
             
             return x_A, y_A, x_B, y_B
         
+        
+        #on dessine la partie bleu (ciel) et maron (terre) de l'horizon artificiel
+        x_A, y_A, x_B, y_B = delta_nouvel_emplacement(self, x1,(y1+y2)/2, x2,(y1+y2)/2, tangage, 1)
+        #self.canvas2.create_polygon((x1,y1), (x1,y_A), (x2,y_B), (x2, y1), fill="maroon")
+        #self.canvas2.create_polygon((x1, y2), (x1,y_A), (x2, y_B), (x2,y2), fill="sky blue")
+        if tangage < 0:
+            self.canvas2.create_rectangle(x1, y2, x2, y1, fill="sky blue")
+        else:
+           self.canvas2.create_rectangle(x1, y2, x2, y1, fill="maroon")
+        
+        self.canvas2.create_polygon((x1,y1), (x_A,y_A), (x_B,y_B), (x2, y1), fill="maroon")
+        self.canvas2.create_polygon((x1, y2), (x_A,y_A), (x_B, y_B), (x2,y2), fill="sky blue")
+        #rectangle noir du haut
+        self.canvas2.create_rectangle(0, 0, self.root2.winfo_screenwidth(), y2, fill="black")
+        #rectangle noir du bas
+        self.canvas2.create_rectangle(0, y1, self.root2.winfo_screenwidth(), self.root2.winfo_screenheight(), fill="black")
+        #rectangle noir de la gauche
+        self.canvas2.create_rectangle(0, y2, x1, y1, fill="black")
+        #rectangle noir de la droite
+        self.canvas2.create_rectangle(x2, y2, self.root2.winfo_screenwidth(), y1, fill="black")
+        
         # Graduations horizontales
-        self.canvas2.create_line(x1, (y1+y2)/2, x2,(y1+y2)/2,fill='#DDD',width=4) #CENTRALE
+        x_A, y_A, x_B, y_B = delta_nouvel_emplacement(self, x1, (y1+y2)/2, x2,(y1+y2)/2, 0, 1)
+        self.canvas2.create_line(x_A, y_A, x_B, y_B,fill='#DDD',width=4) #CENTRALE
         
         for i in [-1,1]:#GRADUATION
-            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(x1+(x2-x1)/3, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*2/3,(y1+y2)/2+ecart_dizaines*i, roulis, ecart_dizaines*i, i/i)
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(self, x1+(x2-x1)/3, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*2/3,(y1+y2)/2+ecart_dizaines*i, ecart_dizaines*i, i/i)
             self.canvas2.create_line(x_A, y_A, x_B, y_B, fill='#DDD',width=4)
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(self, x1+(x2-x1)/4, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*2/3,(y1+y2)/2+ecart_dizaines*i, ecart_dizaines*i, i/i)
             self.canvas2.create_text(x_A,y_A,text='10',fill='#DDD',font='bold')
             self.canvas2.create_text(x_B,y_B,text='10',fill='#DDD',font='bold')
         
         for i in [-1/2,-3/2,1/2,3/2]:#DEMI GRADUATION
-            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(x1+(x2-x1)*2/5, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*3/5,(y1+y2)/2+ecart_dizaines*i, roulis, ecart_dizaines*i, i/i)
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(self, x1+(x2-x1)*2/5, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*3/5,(y1+y2)/2+ecart_dizaines*i, ecart_dizaines*i, i/i)
             self.canvas2.create_line(x_A, y_A, x_B, y_B,fill='#DDD',width=4)
         
         for i in [-1/4,1/4,-3/4,-5/4,-7/4,3/4,5/4,7/4]: #QUARTS DE GRADUATION
-            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(x1+(x2-x1)*5/11, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*6/11,(y1+y2)/2+ecart_dizaines*i, roulis, ecart_dizaines*i, i/i)
+            x_A, y_A, x_B, y_B = delta_nouvel_emplacement(self, x1+(x2-x1)*5/11, (y1+y2)/2+ecart_dizaines*i, x1+(x2-x1)*6/11,(y1+y2)/2+ecart_dizaines*i, ecart_dizaines*i, i/i)
             self.canvas2.create_line(x_A, y_A, x_B, y_B,fill='#DDD',width=4)
         
         # Graduations arc de cercle
@@ -289,7 +322,7 @@ class HorizonArtificiel:
     def horizon_artificiel(self):
         self.bouton_click=False
         self.bouton_horizon()
-        #self.bouton_carte()
+        self.bouton_carte()
         while self.bouton_click==False:
             self.horizon()
             valeur_altimetre_capteur=self.obtenir_valeur_altimetre()
@@ -337,6 +370,9 @@ class HorizonArtificiel:
     def ouvrir_carte_gps(self):
 
         self.root2.destroy()
+        import gps_interface
+        from gps_interface import Track
+        self.maTrace=Track()
         self.maTrace.create_my_track()
         self.bouton_click=True
 
@@ -344,9 +380,7 @@ class HorizonArtificiel:
     def bouton_carte(self):
         import tkinter as tk
         import tkinter.font as font
-        import gps_interface
-        from gps_interface import Track
-        self.maTrace=Track()
+        
         height_button=4
         width_button=len('To Track')
         font_size=self.root2.winfo_screenheight()//100
